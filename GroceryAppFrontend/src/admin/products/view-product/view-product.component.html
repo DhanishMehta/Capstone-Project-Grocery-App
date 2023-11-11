@@ -1,0 +1,51 @@
+<div id="action-bar"
+    class="d-flex justify-content-between align-items-center py-2 mt-3 flex-lg-row flex-md-column flex-sm-column flex-column bg-light-subtle "
+    style="height: 6em;">
+    <div class="d-flex justify-content-center">
+        <a id="addUserButton" class="btn btn-primary fw-medium me-2 d-flex align-items-center" style="height: 50px;"
+            routerLink="new">
+            <i class="bi bi-plus fs-3 me-2"></i>
+            Add Product
+        </a>
+    </div>
+    <div class="d-flex align-items-center justify-content-center flex-row flex-xs-column align-items-sm-center">
+        <form [formGroup]="searchForm">
+            <input id="searchQuery" type="text" class="form-control" formControlName="searchQuery"
+                placeholder="Search products">
+        </form>
+    </div>
+</div>
+
+<app-loader *ngIf="isLoading"></app-loader>
+
+<div *ngIf="!isLoading" style="max-height: 64vh; overflow: auto;">
+    <table class="table table-striped table-hover w-100 mt-3" style="table-layout:fixed;">
+        <thead style="top: 0; position: sticky;">
+            <tr>
+                <th scope="col" *ngFor="let column of displayedColumns" class="z-1">{{column}}</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <tr *ngFor="let product of productList" id="product-{{product.id}}">
+                <td><img style="mix-blend-mode: multiply; max-width: 50px;"
+                        [src]="product.images[0].s"></td>
+                <td class="text-truncate">{{product.brand.name}}</td>
+                <td class="text-truncate">{{product.desc}}</td>
+                <td class="text-truncate">{{product.category.tlc_name}}</td>
+                <td class="text-truncate">Rs. {{product.pricing.discount.mrp}}</td>
+                <td class="text-truncate">{{product.rating_info.avg_rating}}</td>
+                <td class="text-truncate">
+                    <span>
+                        <i class="bi bi-pencil mx-1"></i>
+                        <i class="bi bi-trash mx-1 text-danger"></i>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+</div>
+
+<mat-paginator class="text-primary-color mt-0" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="10"
+    (page)="handlePageEvent($event)" [length]="productListLength" aria-label="Select page"
+    showFirstLastButtons></mat-paginator>
