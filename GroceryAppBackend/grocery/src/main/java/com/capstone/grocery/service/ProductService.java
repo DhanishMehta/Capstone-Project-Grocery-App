@@ -9,7 +9,7 @@ import com.capstone.grocery.response.CommonResponse;
 
 public interface ProductService {
 
-    public CommonResponse<Page<Product>> getAllProducts(Integer limit, Integer page, String fields);
+    public CommonResponse<Page<Product>> getAllProducts(Integer limit, Integer page);
 
     public CommonResponse<Product> getProductById(String productId);
 
@@ -23,11 +23,10 @@ public interface ProductService {
 
     public CommonResponse<List<Product>> deleteAllProduct();
 
-    public CommonResponse<Page<Product>> findProductsBySearchParams(String searchParams, Integer limit, Integer page,
-            String fields);
+    public CommonResponse<Page<Product>> findProductsBySearchParams(String searchParams, Integer limit, Integer page, String category, String sortBy);
 
     public CommonResponse<List<Product>> findProductByPriceRange(int lowerPrice, int higherPrice, Integer limit,
-            Integer page, String fields);
+            Integer page);
 
     public CommonResponse<List<Product>> sortProductsByPrice(boolean isAscending);
 

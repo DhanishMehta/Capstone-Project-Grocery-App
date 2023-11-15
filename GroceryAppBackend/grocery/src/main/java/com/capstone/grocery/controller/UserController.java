@@ -26,28 +26,33 @@ public class UserController {
     UserService userService;
 
     @GetMapping
-    public CommonResponse<List<User>> getAllUsers(){
-        return userService.getAllUsers(); 
-    } 
+    public CommonResponse<List<User>> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    // @GetMapping
+    // public String getAllUsers(){
+    // return "hello from get all users";
+    // }
 
     @GetMapping("/{userId}")
-    public CommonResponse<User> getUserById(@PathVariable String userId){
-        return userService.getUserById(userId); 
+    public CommonResponse<User> getUserById(@PathVariable String userId) {
+        return userService.getUserById(userId);
     }
 
     @PostMapping
-    public CommonResponse<User> postNewUser(@RequestBody User user){
+    public CommonResponse<User> postNewUser(@RequestBody User user) {
         return userService.postNewUser(user);
     }
 
     @PutMapping("/{userId}")
-    public CommonResponse<User> updateUser(@PathVariable String userId, @RequestBody User user){
-        return userService.updateUser(userId,user);
+    public CommonResponse<User> updateUser(@PathVariable String userId, @RequestBody User user) {
+        return userService.updateUser(userId, user);
     }
 
     @DeleteMapping("/{userId}")
-    public CommonResponse<User> deleteUser(@PathVariable String userId){
+    public CommonResponse<User> deleteUser(@PathVariable String userId) {
         return userService.deleteUser(userId);
     }
-    
+
 }

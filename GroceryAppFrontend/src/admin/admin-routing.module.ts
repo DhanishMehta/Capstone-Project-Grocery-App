@@ -10,11 +10,14 @@ import { EditUserComponent } from './users/edit-user/edit-user.component';
 import { ViewProductComponent } from './products/view-product/view-product.component';
 import { AddProductComponent } from './products/add-product/add-product.component';
 import { UpdateProductComponent } from './products/update-product/update-product.component';
+import { isAdmin } from 'src/auth/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: AdminDashboardComponent,
+    canActivate: [isAdmin],
+    canActivateChild: [isAdmin],
     children: [
       {
         path: '',

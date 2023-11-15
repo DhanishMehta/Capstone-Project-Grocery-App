@@ -30,7 +30,7 @@ public class ProductController {
 
     @GetMapping
     public CommonResponse<Page<Product>> getAllProducts(@RequestParam(required = false) Integer limit, @RequestParam(required = false) Integer page, @RequestParam(required = false) String fields) {
-        return productService.getAllProducts(limit, page, fields);
+        return productService.getAllProducts(limit, page);
     }
 
     @GetMapping("/{productId}")
@@ -64,8 +64,14 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public CommonResponse<Page<Product>> findProductsBySearchParams(@RequestParam String q, @RequestParam(required = false) Integer limit, @RequestParam(required = false) Integer page, @RequestParam(required = false) String fields) {
-        return productService.findProductsBySearchParams(q, limit, page, fields);
+    public CommonResponse<Page<Product>> findProductsBySearchParams(@RequestParam String q, @RequestParam(required = false) Integer limit, @RequestParam(required = false) Integer page, @RequestParam(required = false) String category, @RequestParam(required = false) String sortBy) {
+        System.out.println("Inside /search get mapping");
+        System.out.println(q);
+        System.out.println(limit);
+        System.out.println(page);
+        System.out.println(category);
+        System.out.println(sortBy);
+        return productService.findProductsBySearchParams(q, limit, page, category, sortBy);
     }
     
     @GetMapping("/category")

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
-import { Product } from 'src/shared/model/sharedModels';
+import { Product } from 'src/shared/model/productModel';
 import { ProductService } from 'src/shared/services/product/product.service';
 
 @Component({
@@ -26,18 +27,40 @@ export class ViewProductComponent {
   sortIcon = '';
   sortState = 'unsorted';
   displayedColumns = [
-    '',
-    'Brand',
-    'Product',
-    'Category',
-    'Price',
-    'Rating',
-    '',
+    {
+      width: '5%',
+      name: '',
+    },
+    {
+      width: '10%',
+      name: 'Brand',
+    },
+    {
+      width: '30%',
+      name: 'Product',
+    },
+    {
+      width: '20%',
+      name: 'Category',
+    },
+    {
+      width: '7.5%',
+      name: 'Price',
+    },
+    {
+      width: '7.5%',
+      name: 'Rating',
+    },
+    {
+      width: '10%',
+      name: '',
+    },
   ];
 
   constructor(
     private fb: FormBuilder,
-    private productService: ProductService
+    private productService: ProductService,
+    private snackBar: MatSnackBar
   ) {}
   ngOnInit(): void {
     this.initForm();
@@ -68,7 +91,9 @@ export class ViewProductComponent {
       .getPaginatedProducts(
         searchString,
         this.pageEvent.pageIndex + 1,
-        this.pageEvent.pageSize
+        this.pageEvent.pageSize,
+        '',
+        ''
       )
       .subscribe({
         next: (res) => {
@@ -85,5 +110,17 @@ export class ViewProductComponent {
   handlePageEvent(e: PageEvent) {
     this.pageEvent = e;
     this.handlePagination();
+  }
+
+  handleDeleteProduct(productId: string) {
+    this.productService.deleteProduct(productId).subscribe({
+      next: (res) => {
+        console.log(res);
+        this.snackBar.open('The Product is Deleted!', 'Ok', {
+          duration: 4000,
+        });
+        this.handlePagination();
+      },
+    });
   }
 }

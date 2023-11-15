@@ -12,8 +12,8 @@ import com.capstone.grocery.model.User;
 import com.capstone.grocery.response.CommonResponse;
 import com.capstone.grocery.service.CartService;
 
-@RestController
 @CrossOrigin
+@RestController
 @RequestMapping("/cart")
 public class CartController {
 

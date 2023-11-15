@@ -1,5 +1,6 @@
 package com.capstone.grocery.service.implementation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +32,17 @@ public class CartServiceImpl implements CartService {
             Product product = productRepository.findById(productId).get();
 
             Cart newCart = new Cart();
+            if(user.getCart() == null){
+                user.setCart(newCart);
+            }
+            if(user.getCart().getCartItems() == null){
+                user.getCart().setCartItems(new ArrayList<>());
+            }
             List<CartItem> cartItems = user.getCart().getCartItems();
-
+            
             int index = -1;
             for (CartItem cartItem : cartItems) {
-                if (cartItem.getCartItemProduct().getId() == productId) {
+                if (cartItem.getCartItemProduct().getId().equals(productId)) {
                     index = cartItems.indexOf(cartItem);
                     break;
                 }
@@ -44,35 +51,41 @@ public class CartServiceImpl implements CartService {
             if (index != -1) {
                 CartItem newCartItem = new CartItem(product, cartItems.get(index).getCartItemQuantity() + 1);
                 cartItems.set(index, newCartItem);
-
+                
             } else {
                 CartItem newCartItem = new CartItem(product, 1);
                 cartItems.add(newCartItem);
             }
-
+            
             newCart.setCartItems(cartItems);
             newCart.setCartTotal(newCart.getCartTotal());
-
+            
             user.setCart(newCart);
             userRepository.save(user);
             return Utility.getCommonResponse(200, true, "Product Added to Cart", null, user);
         } catch (Exception exc) {
-            return Utility.getCommonResponse(404, false, "Product/User Not Found", null, null);
+            return Utility.getCommonResponse(404, false, "Product/User Not Found.. Error: "+exc, null, null);
         }
     }
-
+    
     @Override
     public CommonResponse<User> removeProductFromCart(String productId, String userId) {
         try {
             User user = userRepository.findById(userId).get();
             Product product = productRepository.findById(productId).get();
-
+            
             Cart newCart = new Cart();
+            if(user.getCart() == null){
+                return Utility.getCommonResponse(404, false, "Cart is Empty", null, null);
+            }
+            if(user.getCart().getCartItems() == null){
+                return Utility.getCommonResponse(404, false, "Cart is Empty", null, null);
+            }
             List<CartItem> cartItems = user.getCart().getCartItems();
-
+            
             int index = -1;
             for (CartItem cartItem : cartItems) {
-                if (cartItem.getCartItemProduct().getId() == productId) {
+                if (cartItem.getCartItemProduct().getId().equals(productId)) {
                     index = cartItems.indexOf(cartItem);
                     break;
                 }
@@ -96,7 +109,7 @@ public class CartServiceImpl implements CartService {
             userRepository.save(user);
             return Utility.getCommonResponse(200, true, "Product Removed from Cart", null, user);
         } catch (Exception exc) {
-            return Utility.getCommonResponse(404, false, "Product/User Not Found", null, null);
+            return Utility.getCommonResponse(404, false, "Product/User Not Found!! Error: "+exc, null, null);
         }
     }
 

@@ -1,9 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 export interface Card {
   title: string;
   description: string;
   color: string;
+  icon: string;
+  routerLink: string;
 }
 
 @Component({
@@ -11,6 +13,10 @@ export interface Card {
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
 })
-export class CardComponent {
+export class CardComponent implements OnInit{
   @Input() card: Card | undefined;
+  ngOnInit(): void {
+      console.log("from admin card:-");
+      console.log(this.card);
+  }
 }

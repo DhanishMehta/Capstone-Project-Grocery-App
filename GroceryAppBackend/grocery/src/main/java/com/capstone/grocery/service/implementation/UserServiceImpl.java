@@ -1,13 +1,20 @@
 package com.capstone.grocery.service.implementation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.capstone.grocery.model.User;
 import com.capstone.grocery.repository.UserRepository;
+import com.capstone.grocery.response.AuthenticateRequest;
+import com.capstone.grocery.response.AuthenticationResponse;
 import com.capstone.grocery.response.CommonResponse;
+import com.capstone.grocery.service.JwtService;
 import com.capstone.grocery.service.UserService;
 import com.capstone.grocery.utility.Utility;
 
@@ -16,6 +23,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    JwtService jwtService;
 
     @Override
     public CommonResponse<List<User>> getAllUsers() {
@@ -77,6 +93,45 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exc) {
             // TODO
             return Utility.getCommonResponse(404, false, "User Not Found Error: " + exc, null, null);
+        }
+    }
+
+    @Override
+    public CommonResponse<AuthenticationResponse<User>> register(User user) {
+        user.setUserId(null);
+        user.setUserEncryptedPassword(passwordEncoder.encode(user.getUserEncryptedPassword()));
+        userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
+        AuthenticationResponse<User> authRes = new AuthenticationResponse<User>(jwtToken, user);
+        return new CommonResponse<AuthenticationResponse<User>>(200, true, "User Authenticated", null, authRes);
+    }
+
+    @Override
+    public CommonResponse<AuthenticationResponse<User>> authenticate(AuthenticateRequest req) {
+        try {
+
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(req.getUserEmail(), req.getUserPassword()));
+            var user = userRepository.findByUserEmail(req.getUserEmail()).orElseThrow();
+            var jwtToken = jwtService.generateToken(user);
+            AuthenticationResponse<User> authRes = new AuthenticationResponse<User>(jwtToken, user);
+            return new CommonResponse<AuthenticationResponse<User>>(200, true, "User Authenticated", null, authRes);
+        } catch (Exception exc) {
+            return new CommonResponse<AuthenticationResponse<User>>(403, false, "User Not Authenticated", null, null);
+        }
+    }
+
+    @Override
+    public CommonResponse<List<String>> getAllUsernames() {
+        try {
+            List<String> usernamesList = new ArrayList<>();
+            List<User> res = this.userRepository.findAllUsername();
+            res.forEach(user -> {
+                usernamesList.add(user.getUserEmail());
+            });
+            return Utility.getCommonResponse(200, true, "All Usernames", null, usernamesList);
+        } catch (Exception exc) {
+            return Utility.getCommonResponse(404, false, "Error: " + exc, null, null);
         }
     }
 

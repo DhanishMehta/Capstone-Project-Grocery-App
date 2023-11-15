@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
-import { User } from 'src/shared/model/sharedModels';
+import { User } from 'src/shared/model/userModel';
 import { UserService } from 'src/shared/services/user/user.service';
 import { Subscription } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { AlertDialogComponent } from 'src/shared/components/alert-dialog/alert-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'admin-view-users',
@@ -17,42 +20,73 @@ export class ViewUsersComponent implements OnInit {
   isLoading = true;
 
   searchForm: FormGroup = new FormGroup({});
-  pageEvent: PageEvent = new PageEvent();
+  pageEvent: PageEvent = {
+    pageIndex: 0,
+    pageSize: 10,
+    previousPageIndex: 0,
+    length: 10
+  };
   sortIcon = '';
   sortState = 'unsorted';
   displayedColumns = [
-    'UserID',
-    'First Name',
-    'Last Name',
-    'Phone No',
-    'Email ID',
-    'User Role',
+    {
+      width: '12%',
+      name: 'UserID',
+    },
+    {
+      width: '12%',
+      name: 'First Name',
+    },
+    {
+      width: '12%',
+      name: 'Last Name',
+    },
+    {
+      width: '15%',
+      name: 'Phone No',
+    },
+    {
+      width: '25%',
+      name: 'Email ID',
+    },
+    {
+      width: '10%',
+      name: 'User Role',
+    },
+    {
+      width: '10%',
+      name: '',
+    },
   ];
 
-  constructor(private fb: FormBuilder, private userService: UserService) {}
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
   ngOnInit(): void {
     this.initForm();
     this.handlePagination();
-
-    
   }
-  
+
   initForm() {
     this.searchForm = this.fb.group({
       searchQuery: this.fb.control(''),
     });
   }
-  
-  handlePagination(){
+
+  handlePagination() {
     this.isLoading = true;
-    this.subscriptions.forEach(sub => sub.unsubscribe);
+    this.subscriptions.forEach((sub) => sub.unsubscribe);
     const sub = this.userService
-    .getPaginatedUsers(this.pageEvent.pageIndex, this.pageEvent.pageSize)
-    .subscribe({
-      next: (res) => {
-        this.userList = res.data;
-        this.userListLength = this.userList.length;
-        this.isLoading = false;
+      .getAllUsers()
+      .subscribe({
+        next: (res) => {
+          this.userList = res.data;
+          this.userListLength = this.userList.length;
+          this.pageEvent.length = this.userListLength;
+          this.isLoading = false;
         },
       });
     this.subscriptions.push(sub);
@@ -61,5 +95,51 @@ export class ViewUsersComponent implements OnInit {
   handlePageEvent(e: PageEvent) {
     this.pageEvent = e;
     this.handlePagination();
+  }
+
+  handleDelete(userId: string) {
+    let user!: User;
+    this.userService.getUserById(userId).subscribe({
+      next: (res) => {
+        user = res.data;
+        const dialogRef = this.dialog.open(AlertDialogComponent, {
+          data: {
+            title: 'Alert',
+            message: [
+              'The below user will be Deleted',
+              ...[user.userFirstName + ' ' + user.userLastName],
+            ],
+            dangerButton: 'Delete',
+            neutralButton: 'Cancel',
+          },
+        });
+        dialogRef.afterClosed().subscribe({
+          next: (res) => {
+            let message = 'User Deletion Canceled!';
+            let action = 'Ok';
+            if (res) {
+              this.userService.deleteUser(userId).subscribe({
+                next: (response) => {
+                  message = 'User Deletion Failed';
+                  action = 'Try Again Later!';
+                  if (response) {
+                    message = 'User Deleted';
+                    action = 'Okay!';
+                  }
+                  this.handlePagination();
+                  this.snackBar.open(message, action, {
+                    duration: 3000,
+                  });
+                },
+              });
+            } else {
+              this.snackBar.open(message, action, {
+                duration: 3000,
+              });
+            }
+          },
+        });
+      },
+    });
   }
 }

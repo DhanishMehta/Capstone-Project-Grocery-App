@@ -34,10 +34,17 @@
               "src/styles.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.min.css",
-              "src/admin/vendor/fontawesome-free/css/fontawesome.min.css"
+              "src/admin/vendor/fontawesome-free/css/fontawesome.min.css",
+              "src/assets/scss/font-icons.css",
+              "src/assets/scss/plugins.css",
+              "src/assets/scss/style.css",
+              "src/assets/scss/responsive.css"
             ],
             "scripts": [
-              "src/admin/vendor/fontawesome-free/js/fontawesome.min.js"
+              "src/admin/vendor/fontawesome-free/js/fontawesome.min.js",
+              "src/assets/js/main.js",
+              "src/assets/js/plugins.js",
+              "node_modules/jquery/dist/jquery.min.js"
             ]
           },
           "configurations": {

@@ -24,11 +24,10 @@ public class ProductServiceImpl implements ProductService {
     ProductRepository productRepository;
 
     @Override
-    public CommonResponse<Page<Product>> getAllProducts(Integer limit, Integer page, String fields) {
+    public CommonResponse<Page<Product>> getAllProducts(Integer limit, Integer page) {
         try {
             limit = limit != null ? limit : 20;
             page = page != null ? page : 1;
-            fields = fields != null ? fields : Product.ALL_PRODUCT_FIELDS;
 
             Pageable customPage = PageRequest.of(page - 1, limit);
             Page<Product> products = productRepository.findAll(customPage);
@@ -106,20 +105,37 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public CommonResponse<Page<Product>> findProductsBySearchParams(String searchParams, Integer limit, Integer page,
-            String fields) {
+            String category, String sortBy) {
         try {
             limit = limit != null ? limit : 20;
             page = page != null ? page : 1;
-            fields = fields != null ? fields : Product.ALL_PRODUCT_FIELDS;
-            Pageable customPage = PageRequest.of(page - 1, limit);
+            category = category != null ? category : "";
 
-            Page<Product> products = productRepository.findBySearchParam(searchParams, customPage);
-            // List<Product> products = productRepository.findBySearchParam(searchParams);
+            Sort customSort = Sort.unsorted();
+            // if (sortBy == "price-htl") {
+            // customSort = Sort.by("pricing.discount.mrp").descending();
+            // } else if (sortBy == "price-lth") {
+            // customSort = Sort.by("pricing.discount.mrp").ascending();
+            // } else if (sortBy == "rating-htl") {
+            // customSort = Sort.by("rating_info.avg_rating").descending();
+            // } else if (sortBy == "rating-lth") {
+            // customSort = Sort.by("rating_info.avg_rating").ascending();
+            // }
+            Pageable customPage = PageRequest.of(page - 1, limit, customSort);
+            if (category == null || category == "") {
+                Page<Product> products = productRepository.findBySearchParam(searchParams, customPage);
+                Long total = Long.valueOf(productRepository.findBySearchParam(searchParams).size());
+                Long totalPages = total / limit;
+                return Utility.getCommonResponse(200, true, "Filtered Products",
+                new Pagination(page, limit, totalPages, total), products);
+            } else {
+                Page<Product> products = productRepository.findBySearchParamOnCategory(searchParams, category, customPage);
+                Long total = Long.valueOf(productRepository.findBySearchParam(searchParams).size());
+                Long totalPages = total / limit;
+                return Utility.getCommonResponse(200, true, "Filtered Products",
+                        new Pagination(page, limit, totalPages, total), products);
+            }
 
-            Long total = Long.valueOf(productRepository.findBySearchParam(searchParams).size());
-            Long totalPages = total / limit;
-            return Utility.getCommonResponse(200, true, "Filtered Products",
-                    new Pagination(page, limit, totalPages, total), products);
         } catch (Exception exc) {
             return Utility.getCommonResponse(404, true, "Error: " + exc, null, null);
         }
@@ -127,11 +143,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public CommonResponse<List<Product>> findProductByPriceRange(int lowerPrice, int higherPrice, Integer limit,
-            Integer page, String fields) {
+            Integer page) {
         try {
             limit = limit != null ? limit : 20;
             page = page != null ? page : 1;
-            fields = fields != null ? fields : Product.ALL_PRODUCT_FIELDS;
             Pageable customPage = PageRequest.of(page - 1, limit);
 
             List<Product> products = productRepository.findByPriceRange(lowerPrice, higherPrice, customPage);
@@ -167,7 +182,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public CommonResponse<List<Product>> findProductsByCategory(String llc, String mlc, String tlc) {
         try {
-            String category = llc != null ? llc : mlc != null ? mlc : tlc!= null ? tlc : "";
+            String category = llc != null ? llc : mlc != null ? mlc : tlc != null ? tlc : "";
             List<Product> products = productRepository.findByCategory(category);
             // TODO
             return Utility.getCommonResponse(200, true, "TLC Items: " + category, null, products);
