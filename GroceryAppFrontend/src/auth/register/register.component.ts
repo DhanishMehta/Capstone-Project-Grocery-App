@@ -4,6 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { User } from 'src/shared/model/userModel';
 import { AuthService } from 'src/shared/services/auth/auth.service';
+import { OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 export const StrongPasswordRegx: RegExp =
   /^(?=[^A-Z]*[A-Z])(?=[^a-z]*[a-z])(?=\D*\d).{8,}$/;
@@ -13,7 +15,8 @@ export const StrongPasswordRegx: RegExp =
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
 })
-export class AuthRegisterComponent {
+export class AuthRegisterComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = [];
   registerForm!: FormGroup;
   userToken: string = '';
   usernames: string[] = [];
@@ -25,9 +28,14 @@ export class AuthRegisterComponent {
     private snackBar: MatSnackBar,
     private router: Router
   ) {}
+
   ngOnInit(): void {
     this.initForm();
     this.getAllUsernames();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   initForm() {
@@ -57,9 +65,9 @@ export class AuthRegisterComponent {
       userPhone: formValue.userPhone,
       userEncryptedPassword: formValue.userPassword,
       userEmail: formValue.userEmail,
-      userRole: "USER",
-      userSavedAddresses: []
-    }
+      userRole: 'USER',
+      userSavedAddresses: [],
+    };
     return newUser;
   }
 
@@ -70,12 +78,11 @@ export class AuthRegisterComponent {
         return;
       }
       const newUser = this.buildNewUser();
-      this.authService.register(newUser).subscribe({
+      const sub = this.authService.register(newUser).subscribe({
         next: (res) => {
           let message = 'User Registration Failed';
           let action = 'Try again later!';
           if (res.success) {
-            console.log(res);
             message = 'User Registered Successfully';
             action = 'Yayy!!';
             this.authService.setToken(res.data.token);
@@ -88,11 +95,12 @@ export class AuthRegisterComponent {
           this.router.navigate(['/']);
         },
       });
+      this.subscriptions.push(sub);
     }
   }
 
   getAllUsernames() {
-    this.authService.getAllUsernames().subscribe({
+    const sub = this.authService.getAllUsernames().subscribe({
       next: (res) => {
         if (res.success) {
           this.usernames = res.data;
@@ -101,16 +109,18 @@ export class AuthRegisterComponent {
         }
       },
     });
+    this.subscriptions.push(sub);
   }
 
-  togglePasswordVisibility(){
-    const passwordInput = (document.getElementById("floatingPassword") as HTMLInputElement);
-    if(passwordInput.type === 'password'){
+  togglePasswordVisibility() {
+    const passwordInput = document.getElementById(
+      'floatingPassword'
+    ) as HTMLInputElement;
+    if (passwordInput.type === 'password') {
       passwordInput.type = 'text';
       this.isPasswordVisibile = true;
-    }
-    else{
-      passwordInput.type = 'password'
+    } else {
+      passwordInput.type = 'password';
       this.isPasswordVisibile = false;
     }
   }

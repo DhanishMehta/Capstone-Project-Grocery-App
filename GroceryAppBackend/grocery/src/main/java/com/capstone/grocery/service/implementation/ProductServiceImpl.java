@@ -112,15 +112,15 @@ public class ProductServiceImpl implements ProductService {
             category = category != null ? category : "";
 
             Sort customSort = Sort.unsorted();
-            // if (sortBy == "price-htl") {
-            // customSort = Sort.by("pricing.discount.mrp").descending();
-            // } else if (sortBy == "price-lth") {
-            // customSort = Sort.by("pricing.discount.mrp").ascending();
-            // } else if (sortBy == "rating-htl") {
-            // customSort = Sort.by("rating_info.avg_rating").descending();
-            // } else if (sortBy == "rating-lth") {
-            // customSort = Sort.by("rating_info.avg_rating").ascending();
-            // }
+            if (sortBy == "price-htl") {
+            customSort = Sort.by("pricing.discount.mrp").descending();
+            } else if (sortBy == "price-lth") {
+            customSort = Sort.by("pricing.discount.mrp").ascending();
+            } else if (sortBy == "rating-htl") {
+            customSort = Sort.by("rating_info.avg_rating").descending();
+            } else if (sortBy == "rating-lth") {
+            customSort = Sort.by("rating_info.avg_rating").ascending();
+            }
             Pageable customPage = PageRequest.of(page - 1, limit, customSort);
             if (category == null || category == "") {
                 Page<Product> products = productRepository.findBySearchParam(searchParams, customPage);

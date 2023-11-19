@@ -13,10 +13,8 @@ export interface Card {
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
 })
-export class CardComponent implements OnInit{
+export class  CardComponent implements OnInit{
   @Input() card: Card | undefined;
   ngOnInit(): void {
-      console.log("from admin card:-");
-      console.log(this.card);
   }
 }

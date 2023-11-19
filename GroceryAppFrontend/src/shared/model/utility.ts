@@ -15,6 +15,17 @@ export interface ProductTabViewOptions{
   filterOptions: boolean;
 }
 
+export interface Review{
+  reviewId?: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  reviewTitle: string;
+  reviewMessage: string;
+  reviewRating: number;
+  reviewTime: Date;
+}
+
 export interface Pagination {
   pageIndex: number;
   pageSize: number;
@@ -51,3 +62,7 @@ export interface Page<T> {
   empty: boolean;
 }
 
+export interface UserAndProduct {
+  userId: string;
+  productId: string
+}

@@ -18,4 +18,5 @@ public class Order {
     PaymentDetails paymentDetails;
     CheckoutItem[] items;
     CheckoutPrice pricing;
+    OrderStatus orderStatus;
 }

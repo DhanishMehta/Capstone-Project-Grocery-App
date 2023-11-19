@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,7 +11,7 @@ import { ProductService } from 'src/shared/services/product/product.service';
   templateUrl: './view-product.component.html',
   styleUrls: ['./view-product.component.scss'],
 })
-export class ViewProductComponent {
+export class ViewProductComponent implements OnInit, OnDestroy{
   productList: Product[] = [];
   subscriptions: Subscription[] = [];
   productListLength = 0;
@@ -62,6 +62,7 @@ export class ViewProductComponent {
     private productService: ProductService,
     private snackBar: MatSnackBar
   ) {}
+
   ngOnInit(): void {
     this.initForm();
     this.handlePagination();
@@ -70,6 +71,10 @@ export class ViewProductComponent {
         this.handlePagination();
       },
     });
+  }
+
+  ngOnDestroy(): void {
+      this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   initForm() {
@@ -97,10 +102,8 @@ export class ViewProductComponent {
       )
       .subscribe({
         next: (res) => {
-          console.log('Search String: ' + searchString);
           this.productList = res.data.content;
           this.productListLength = res.data.totalElements;
-          console.log(this.productList);
           this.isLoading = false;
         },
       });
@@ -113,14 +116,14 @@ export class ViewProductComponent {
   }
 
   handleDeleteProduct(productId: string) {
-    this.productService.deleteProduct(productId).subscribe({
+    const sub = this.productService.deleteProduct(productId).subscribe({
       next: (res) => {
-        console.log(res);
         this.snackBar.open('The Product is Deleted!', 'Ok', {
           duration: 4000,
         });
         this.handlePagination();
       },
     });
+    this.subscriptions.push(sub);
   }
 }

@@ -16,6 +16,10 @@ export class ProductService {
     return this.http.get<CommonReponse<Page<Product[]>>>(SERVER_API_BASE_URL + '/products'+additionalString);
   }
 
+  getProductById(productId: string): Observable<CommonReponse<Product>> {
+    return this.http.get<CommonReponse<Product>>(SERVER_API_BASE_URL + '/products/'+productId);
+  }
+
   getPaginatedProducts(additionalString:string, page: number, limit: number, category: string, sortBy: string): Observable<CommonReponse<Page<Product[]>>> {
     additionalString = additionalString === '' ? '?' : additionalString;
     
@@ -24,16 +28,15 @@ export class ProductService {
     if(limit !== null) customURL += "&limit=" + limit;
     if(category !== null && category !== '' && category) customURL += "&category=" + category;
     if(sortBy !== null && sortBy !== '' && sortBy) customURL += "&sortBy=" + sortBy;
-    console.log(SERVER_API_BASE_URL + customURL);
     
     return this.http.get<CommonReponse<Page<Product[]>>>(
       SERVER_API_BASE_URL + customURL
     );
   }
 
-  updateProduct(product: Product, userId: string): Observable<CommonReponse<Product>> {
+  updateProduct(product: Product, productId: string): Observable<CommonReponse<Product>> {
     return this.http.put<CommonReponse<Product>>(
-      SERVER_API_BASE_URL + '/products/' + userId,
+      SERVER_API_BASE_URL + '/products/' + productId,
       product
     );
   }

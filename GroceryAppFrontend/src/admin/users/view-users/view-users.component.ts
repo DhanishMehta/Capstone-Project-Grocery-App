@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
 import { User } from 'src/shared/model/userModel';
@@ -13,7 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './view-users.component.html',
   styleUrls: ['./view-users.component.scss'],
 })
-export class ViewUsersComponent implements OnInit {
+export class ViewUsersComponent implements OnInit, OnDestroy {
   userList: User[] = [];
   subscriptions: Subscription[] = [];
   userListLength = 0;
@@ -70,6 +70,10 @@ export class ViewUsersComponent implements OnInit {
     this.handlePagination();
   }
 
+  ngOnDestroy(): void {
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   initForm() {
     this.searchForm = this.fb.group({
       searchQuery: this.fb.control(''),
@@ -99,7 +103,7 @@ export class ViewUsersComponent implements OnInit {
 
   handleDelete(userId: string) {
     let user!: User;
-    this.userService.getUserById(userId).subscribe({
+    const sub = this.userService.getUserById(userId).subscribe({
       next: (res) => {
         user = res.data;
         const dialogRef = this.dialog.open(AlertDialogComponent, {
@@ -141,5 +145,6 @@ export class ViewUsersComponent implements OnInit {
         });
       },
     });
+    this.subscriptions.push(sub);
   }
 }

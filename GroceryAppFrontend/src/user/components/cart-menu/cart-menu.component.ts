@@ -3,13 +3,18 @@ import { Cart } from 'src/shared/model/userModel';
 import { AuthService } from 'src/shared/services/auth/auth.service';
 import { CartService } from 'src/shared/services/cart/cart.service';
 import { UserService } from 'src/shared/services/user/user.service';
+import { OnDestroy } from '@angular/core';
+import {Subscription} from 'rxjs'
+
+
 
 @Component({
   selector: 'user-cart-menu',
   templateUrl: './cart-menu.component.html',
   styleUrls: ['./cart-menu.component.scss'],
 })
-export class CartMenuComponent implements OnInit {
+export class CartMenuComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = [];
   cart!: Cart;
   displayCart: boolean = false;
   constructor(
@@ -21,6 +26,9 @@ export class CartMenuComponent implements OnInit {
   ngOnInit(): void {
     this.getCart();
   }
+  ngOnDestroy(): void {
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
 
   isLoggedIn() :boolean {
     return this.authService.isLoggedIn();
@@ -28,10 +36,8 @@ export class CartMenuComponent implements OnInit {
 
   getCart() {
     if (this.authService.isLoggedIn()) {
-      this.cartService.cart$.subscribe({
+      const sub = this.cartService.cart$.subscribe({
         next: (data) => {
-          console.log('inside cart menu');
-          console.log(data);
           this.cart = data;
           this.displayCart = true;
         },
@@ -39,6 +45,9 @@ export class CartMenuComponent implements OnInit {
           console.error(er);
         },
       });
+
+      this.subscriptions.push(sub);
+
     }
   }
 

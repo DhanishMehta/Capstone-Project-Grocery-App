@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CategoryOfTree, Image, Product } from 'src/shared/model/productModel';
 import { ProductService } from 'src/shared/services/product/product.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'admin-add-product',
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.scss'],
 })
-export class AddProductComponent implements OnInit {
+export class AddProductComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = [];
   topCategoryTree!: CategoryOfTree[];
   midCategoryTree!: CategoryOfTree[];
   lowCategoryTree!: CategoryOfTree[];
@@ -33,12 +35,17 @@ export class AddProductComponent implements OnInit {
     this.addProductFormSub();
   }
 
+  ngOnDestroy(): void {
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   getCategoryTree(id: string) {
-    this.productService.getCategoryTree().subscribe({
+    const sub = this.productService.getCategoryTree().subscribe({
       next: (res) => {
         this.topCategoryTree = res.data;
       },
     });
+    this.subscriptions.push(sub);
   }
 
   initForm() {
@@ -70,10 +77,8 @@ export class AddProductComponent implements OnInit {
       };
       this.newProduct.images?.push(image);
 
-      console.log(this.newProduct);
-      this.productService.addProduct(this.newProduct).subscribe({
+      const sub = this.productService.addProduct(this.newProduct).subscribe({
         next: (res) => {
-          console.log(res);
           let message = 'Failed ot Add Product';
           let action = 'Try Later';
           if (res.success) {
@@ -86,6 +91,7 @@ export class AddProductComponent implements OnInit {
           this.router.navigate(['/admin/products']);
         },
       });
+      this.subscriptions.push(sub);
     }
   }
 
@@ -181,14 +187,14 @@ export class AddProductComponent implements OnInit {
 
   addProductFormSub() {
     // something changes in tlc
-    this.addProductForm.controls['tlc'].valueChanges.subscribe({
+    const sub1 = this.addProductForm.controls['tlc'].valueChanges.subscribe({
       next: (data) => {
         // reset mlc and llc form controls
         this.addProductForm.controls['mlc'].reset();
         this.addProductForm.controls['llc'].reset();
 
         // get the specific category
-        this.productService.getCategoryById(data).subscribe({
+        const sub2 = this.productService.getCategoryById(data).subscribe({
           next: (res) => {
             // assigning tlc slug and name values
             this.newProduct!.category!.tlc_slug! = res.data.slug;
@@ -198,7 +204,7 @@ export class AddProductComponent implements OnInit {
             this.midCategoryTree = res.data.children;
 
             // something changes in mlc
-            this.addProductForm.controls['mlc'].valueChanges.subscribe({
+            const sub3 = this.addProductForm.controls['mlc'].valueChanges.subscribe({
               next: (childData) => {
                 // reset llc form
                 this.addProductForm.controls['llc'].reset();
@@ -221,7 +227,7 @@ export class AddProductComponent implements OnInit {
                 }
 
                 // if something changes in llc
-                this.addProductForm.controls['llc'].valueChanges.subscribe({
+                const sub4 = this.addProductForm.controls['llc'].valueChanges.subscribe({
                   next: (grandChild) => {
                     // find the specific chosen tlc
                     const llcChild = this.lowCategoryTree.find(
@@ -234,11 +240,16 @@ export class AddProductComponent implements OnInit {
                     this.newProduct.category!.llc_slug = llcChild?.slug!;
                   },
                 });
+                this.subscriptions.push(sub4);
               },
             });
+            this.subscriptions.push(sub3);
           },
         });
+        this.subscriptions.push(sub2);
       },
     });
+
+    this.subscriptions.push(sub1);
   }
 }

@@ -6,6 +6,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { LoaderComponent } from './components/loader/loader.component';
 import { AlertDialogComponent } from './components/alert-dialog/alert-dialog.component';
 import { PreLoaderComponent } from './components/pre-loader/pre-loader.component';
+import { RatingFormComponent } from './components/rating-form/rating-form.component';
+import { ReviewDisplayComponent } from './components/review-display/review-display.component';
 
 const importModules = [
   MaterialModule,
@@ -17,7 +19,9 @@ const importModules = [
 const shareComponents = [
   LoaderComponent,
   AlertDialogComponent,
-  PreLoaderComponent
+  PreLoaderComponent,
+  RatingFormComponent,
+  ReviewDisplayComponent
 ]
 
 @NgModule({
@@ -25,6 +29,8 @@ const shareComponents = [
     LoaderComponent,
     AlertDialogComponent,
     PreLoaderComponent,
+    RatingFormComponent,
+    ReviewDisplayComponent,
   ],
   imports: [CommonModule, ...importModules],
   exports: [...importModules, ...shareComponents],

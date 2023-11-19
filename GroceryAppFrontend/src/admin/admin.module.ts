@@ -18,6 +18,8 @@ import { EditUserComponent } from './users/edit-user/edit-user.component';
 import { ViewProductComponent } from './products/view-product/view-product.component';
 import { AddProductComponent } from './products/add-product/add-product.component';
 import { UpdateProductComponent } from './products/update-product/update-product.component';
+import { OrdersComponent } from './orders/orders.component';
+import { ViewOrdersComponent } from './orders/view-orders/view-orders.component';
 
 
 @NgModule({
@@ -36,7 +38,9 @@ import { UpdateProductComponent } from './products/update-product/update-product
     EditUserComponent,
     ViewProductComponent,
     AddProductComponent,
-    UpdateProductComponent
+    UpdateProductComponent,
+    OrdersComponent,
+    ViewOrdersComponent
   ],
   imports: [
     CommonModule,

@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.capstone.grocery.model.product.Product;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,6 +33,7 @@ public class User implements UserDetails{
     private List<Address> userSavedAddresses;
     private UserRole userRole;
     private Cart cart;
+    private List<Product> wishlist;
     
     public void setAllAttributes(User newUser){
         this.userFirstName = newUser.userFirstName;
@@ -41,6 +44,7 @@ public class User implements UserDetails{
         this.userSavedAddresses = newUser.userSavedAddresses;
         this.userRole = newUser.userRole;
         this.cart = newUser.cart;
+        this.wishlist = newUser.wishlist;
     }
 
     @Override

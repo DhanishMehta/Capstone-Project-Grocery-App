@@ -5315,7 +5315,7 @@ ul.wp-block-latest-posts.is-grid.alignwide {
   bottom: 0;
   left: 0;
   display: none;
-  background-color: rgba(0, 0, 0, 0.5); }
+  background-color: rgba(0, 0, 0, 0.2); }
 
 .ltn__utilize.ltn__utilize-open {
   -webkit-transform: translateX(0);
@@ -6934,7 +6934,7 @@ ul.wp-block-latest-posts.is-grid.alignwide {
   margin-top: 40px; }
 
 .modal-backdrop.show {
-  opacity: .7; }
+  opacity: .3; }
 
 .modal-body .additional-info p {
   font-size: 14px; }
@@ -9765,7 +9765,7 @@ blockquote {
 ---------------------------------------------------- */
 .cart-plus-minus {
   border: 2px solid;
-  height: 63px;
+  height: 50px;
   line-height: 56px;
   width: 140px;
   text-align: center; }

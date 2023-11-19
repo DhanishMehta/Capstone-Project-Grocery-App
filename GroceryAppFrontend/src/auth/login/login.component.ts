@@ -1,32 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthenticationRequest } from 'src/shared/model/reqResModel';
 import { AuthService } from 'src/shared/services/auth/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'auth-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class AuthLoginComponent implements OnInit {
+export class AuthLoginComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = [];
   loginForm!: FormGroup;
   usernames: string[] = [];
   submissionTried = 0;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private snackbar: MatSnackBar, private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private snackbar: MatSnackBar,
+    private router: Router
+  ) {}
   ngOnInit(): void {
-    if(this.authService.isLoggedIn()) 
-      this.ifUserLoggedIn();
+    if (this.authService.isLoggedIn()) this.ifUserLoggedIn();
     else this.ifUserLoggedOut();
   }
-  
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
   ifUserLoggedIn() {
-    this.snackbar.open("User already logged in!!", "Great");
+    this.snackbar.open('User already logged in!!', 'Great');
     this.router.navigate(['/']);
   }
-  
+
   ifUserLoggedOut() {
     this.initForm();
     this.getAllUsernames();
@@ -40,7 +50,7 @@ export class AuthLoginComponent implements OnInit {
   }
 
   getAllUsernames() {
-    this.authService.getAllUsernames().subscribe({
+    const sub = this.authService.getAllUsernames().subscribe({
       next: (res) => {
         if (res.success) {
           this.usernames = res.data;
@@ -49,6 +59,7 @@ export class AuthLoginComponent implements OnInit {
         }
       },
     });
+    this.subscriptions.push(sub);
   }
 
   isEmailUnique() {
@@ -59,46 +70,44 @@ export class AuthLoginComponent implements OnInit {
 
   buildAuthReq() {
     const formValue = this.loginForm.value;
-    const authDetails:AuthenticationRequest =  {
+    const authDetails: AuthenticationRequest = {
       userEmail: formValue.userEmail,
-      userPassword: formValue.userPassword
-    }
+      userPassword: formValue.userPassword,
+    };
     return authDetails;
   }
 
   handleLogin() {
-    if(this.loginForm.valid) {
+    if (this.loginForm.valid) {
       this.submissionTried++;
-      if(this.isEmailUnique()){
+      if (this.isEmailUnique()) {
         return;
       }
-      console.log(this.buildAuthReq());
-      this.authService.authenticate(this.buildAuthReq()).subscribe({
+      const sub = this.authService.authenticate(this.buildAuthReq()).subscribe({
         next: (res) => {
-          console.log("inside authenticate request");
-          let message = "Failed to Log In";
-          let action = "Try later";
-          console.log(res);
-          if(res.success){
-            message = "Logged In Successfully";
-            action = "Yayy!";
+          let message = 'Failed to Log In';
+          let action = 'Try later';
+          if (res.success) {
+            message = 'Logged In Successfully';
+            action = 'Yayy!';
             this.authService.setRole(res.data.data.userRole);
             this.authService.setToken(res.data.token);
             this.authService.setUserId(res.data.data.userId!);
             // this.snackbar.open(message, action, {
             //   duration: 2000
             // });
-            this.router.navigate(["/"]);
+            this.router.navigate(['/']);
           } else {
             this.snackbar.open(message, action, {
-              duration: 3000
+              duration: 3000,
             });
           }
         },
         error: (er) => {
           console.error(er);
-        }
-      })
+        },
+      });
+      this.subscriptions.push(sub);
     }
   }
 }

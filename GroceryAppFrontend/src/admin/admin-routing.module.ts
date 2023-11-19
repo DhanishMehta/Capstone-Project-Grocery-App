@@ -11,6 +11,7 @@ import { ViewProductComponent } from './products/view-product/view-product.compo
 import { AddProductComponent } from './products/add-product/add-product.component';
 import { UpdateProductComponent } from './products/update-product/update-product.component';
 import { isAdmin } from 'src/auth/auth.guard';
+import { ViewOrdersComponent } from './orders/view-orders/view-orders.component';
 
 const routes: Routes = [
   {
@@ -56,6 +57,16 @@ const routes: Routes = [
           {
             path: 'edit/:id',
             component: UpdateProductComponent,
+          },
+        ],
+      },
+      {
+        path: 'orders',
+        component: ProductsComponent,
+        children: [
+          {
+            path: '',
+            component: ViewOrdersComponent,
           },
         ],
       },

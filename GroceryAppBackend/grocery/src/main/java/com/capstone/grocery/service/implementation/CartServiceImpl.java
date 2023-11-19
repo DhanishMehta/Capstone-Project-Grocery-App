@@ -10,6 +10,7 @@ import com.capstone.grocery.model.Cart;
 import com.capstone.grocery.model.CartItem;
 import com.capstone.grocery.model.User;
 import com.capstone.grocery.model.product.Product;
+import com.capstone.grocery.repository.OrderRepository;
 import com.capstone.grocery.repository.ProductRepository;
 import com.capstone.grocery.repository.UserRepository;
 import com.capstone.grocery.response.CommonResponse;
@@ -24,6 +25,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    OrderRepository orderRepository;
 
     @Override
     public CommonResponse<User> addProductToCart(String productId, String userId) {
@@ -110,6 +114,18 @@ public class CartServiceImpl implements CartService {
             return Utility.getCommonResponse(200, true, "Product Removed from Cart", null, user);
         } catch (Exception exc) {
             return Utility.getCommonResponse(404, false, "Product/User Not Found!! Error: "+exc, null, null);
+        }
+    }
+    
+    @Override
+    public CommonResponse<User> clearCart(String userId) {
+        try{
+            User user = this.userRepository.findById(userId).get();
+            user.setCart(new Cart(new ArrayList<>(), 0.0));
+            userRepository.save(user);
+            return Utility.getCommonResponse(200, true, "Cart cleared", null, null);
+        } catch (Exception exc) {   
+            return Utility.getCommonResponse(404, false, "User Not Found!! Error: "+exc, null, null);
         }
     }
 

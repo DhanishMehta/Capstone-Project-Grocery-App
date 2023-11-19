@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { User, UserRole } from 'src/shared/model/userModel';
 import { UserService } from 'src/shared/services/user/user.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'admin-add-user',
   templateUrl: './add-user.component.html',
   styleUrls: ['./add-user.component.scss'],
 })
-export class AddUserComponent implements OnInit {
+export class AddUserComponent implements OnInit, OnDestroy {
+  subscriptions: Subscription[] = []
   newUser!: User;
   addUserForm!: FormGroup;
   userRoles: UserRole[] = [
@@ -30,6 +32,10 @@ export class AddUserComponent implements OnInit {
     this.initForm();
     this.initNewUser();
     this.isLoading = false;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe);
   }
 
   initForm() {
@@ -72,7 +78,7 @@ export class AddUserComponent implements OnInit {
       this.newUser.userPhone = formValue.userPhone;
       this.newUser.userRole = formValue.userRole;
       
-      this.userService.addUser(this.newUser).subscribe({
+      const sub = this.userService.addUser(this.newUser).subscribe({
         next: (res) => {
           let message = 'User Addition Failed !';
           let action = 'Try Again Later';
@@ -87,6 +93,8 @@ export class AddUserComponent implements OnInit {
           this.router.navigate(['/admin/users']);
         },
       });
+
+      this.subscriptions.push(sub);
     }
   }
 

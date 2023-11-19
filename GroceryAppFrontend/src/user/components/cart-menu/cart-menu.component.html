@@ -6,7 +6,7 @@
     <div *ngIf="displayCart" class="mini-cart-product-area ltn__scrollbar">
         <div *ngFor="let item of cart.cartItems" class="mini-cart-item clearfix">
             <div class="mini-cart-img">
-                <a href="#">
+                <a routerLink="#">
                     <img *ngIf="item.cartItemProduct.images!.length == 0" src="/assets/img/placeholder-image.jpg" alt="Image">
                     <img *ngIf="item.cartItemProduct.images!.length > 0" [src]="item.cartItemProduct.images![0].m" alt="Image">
                 </a>
@@ -24,6 +24,7 @@
         </div>
         <div class="btn-wrapper d-flex justify-content-center">
             <!-- <a routerLink="/cart" class="theme-btn-1 btn btn-effect-1">View Cart</a> -->
+            <a routerLink="/cart" class="theme-btn-1 btn btn-effect-1">View Cart</a>
             <a routerLink="/checkout" class="theme-btn-2 btn btn-effect-2">Checkout</a>
         </div>
         <p>Free Shipping on All Orders Over ₹1000!</p>

@@ -1,4 +1,6 @@
+import { InteractivityChecker } from "@angular/cdk/a11y";
 import { Product } from "./productModel";
+import { Order } from "./orderModel";
 
 export interface User {
     userId?: string;
@@ -10,6 +12,8 @@ export interface User {
     userSavedAddresses: Address[];
     userRole: UserRole;
     cart?: Cart;
+    wishlist?: Product[];
+    orderHistory?: Order[];
   }
   
   export interface Address {

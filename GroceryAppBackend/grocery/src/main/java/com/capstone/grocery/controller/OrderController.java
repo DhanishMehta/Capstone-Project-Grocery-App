@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capstone.grocery.model.Order;
@@ -28,10 +29,17 @@ public class OrderController {
     public CommonResponse<List<Order>> getAllOrders(){
         return this.orderService.getAllOrders();
     }
-
-    @GetMapping("/:orderId")
+    
+    @GetMapping("/{orderId}")
     public CommonResponse<Order> getOrderById(@PathVariable String orderId){
+        System.out.println("Get order by id");
         return this.orderService.getOrderById(orderId);
+    }
+
+    @GetMapping("/user")
+    public CommonResponse<List<Order>> getOrderByUserId(@RequestParam String id){
+        System.out.println("Get order by id");
+        return this.orderService.getOrderByUserId(id);
     }
 
     @PostMapping
