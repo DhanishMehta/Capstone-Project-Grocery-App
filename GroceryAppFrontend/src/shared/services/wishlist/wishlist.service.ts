@@ -26,7 +26,9 @@ export class WishlistService implements OnInit, OnDestroy {
     private authService: AuthService,
     private userService: UserService
   ) {
-    this.getWishlist();
+    if (this.authService.isLoggedIn()) {
+      this.getWishlist();
+    }
   }
 
   ngOnInit(): void {}
@@ -88,7 +90,6 @@ export class WishlistService implements OnInit, OnDestroy {
   }
 
   deleteFromWishlist(productId: string) {
-
     const userId = this.getUserId();
     const token = this.authService.getToken();
     const sub = this.http

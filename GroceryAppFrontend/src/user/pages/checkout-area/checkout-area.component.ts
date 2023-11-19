@@ -13,10 +13,11 @@ import { User } from 'src/shared/model/userModel';
 import { AuthService } from 'src/shared/services/auth/auth.service';
 import { OrderService } from 'src/shared/services/order/order.service';
 import { UserService } from 'src/shared/services/user/user.service';
-import { WindowRefService } from 'src/shared/services/utility/window-ref.service';
 import { OnDestroy } from '@angular/core';
-import {Subscription} from 'rxjs'
+import { Subscription } from 'rxjs';
 import { CartService } from 'src/shared/services/cart/cart.service';
+import { CouponService } from 'src/shared/services/coupon/coupon.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 declare var Razorpay: any;
 
@@ -34,6 +35,8 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
   billingDetails!: FormGroup;
   addressDetails!: FormGroup;
   payemntDetails!: FormGroup;
+  couponForm: FormGroup;
+  couponDiscount = 0;
 
   newOrder: Order;
   user: User;
@@ -44,8 +47,9 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private cartService: CartService,
     private orderService: OrderService,
-    private winRef: WindowRefService,
-    private router: Router
+    private router: Router,
+    private couponService: CouponService,
+    private snackbar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -53,7 +57,7 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   getUser() {
@@ -123,14 +127,32 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
         paymentMethod: this.fb.control(''),
       })),
     ]);
-    
+
+    this.couponForm = this.fb.group({
+      couponCode: this.fb.control(''),
+    });
+
     this.updateNewOrder();
-    this.newOrder.orderId = "b6dd0e55-58ef-4ff6-9169-aa74f2a6a747";
-    
+    this.newOrder.orderId = '';
+
     this.isLoading = false;
   }
 
-  handleAddCouponCode() {}
+  handleAddCouponCode() {
+    const couponCode = this.couponForm.get('couponCode').value;
+    this.couponService.validateCoupon(couponCode).subscribe({
+      next: (res) => {
+        if(res.success){
+          this.couponDiscount = res.data.redemption;
+          this.setPriceInOrder();
+          this.snackbar.open("Coupon code Added", "Yayy!");
+        }
+      },
+      error: (er) => {
+        console.error(er);
+      }
+    })
+  }
 
   handlePlaceOrder() {
     if (this.orderDetails.valid) {
@@ -140,9 +162,8 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
       // this.handlePayment(); called inside postOrderToServer
     }
   }
-  
-  updateNewOrder(){
-    
+
+  updateNewOrder() {
     const formValue = this.orderDetails.value;
     const userId = this.authService.getUserId();
     this.newOrder = {
@@ -176,7 +197,7 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
         GST: 0,
         grandTotal: 0,
       },
-      orderStatus: "INITIALIZED"
+      orderStatus: 'INITIALIZED',
     };
     this.setItemsInOrder();
     this.setPriceInOrder();
@@ -203,14 +224,22 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
         Number(item.cartItemProduct.pricing.discount.mrp) -
         Number(item.cartItemProduct.pricing.discount.subscription_price);
     });
+    discount += this.couponDiscount;
     this.newOrder.pricing.discount = Number(discount.toFixed(2));
-    this.newOrder.pricing.delivery = Number((0.1 * this.newOrder.pricing.orderTotal).toFixed(2));
-    this.newOrder.pricing.GST = Number((0.18 * this.newOrder.pricing.orderTotal).toFixed(2));
-    this.newOrder.pricing.grandTotal =
-      Number((this.newOrder.pricing.orderTotal +
-      0.18 * this.newOrder.pricing.orderTotal +
-      0.1 * this.newOrder.pricing.orderTotal -
-      discount).toFixed(2));
+    this.newOrder.pricing.delivery = Number(
+      (0.1 * this.newOrder.pricing.orderTotal).toFixed(2)
+    );
+    this.newOrder.pricing.GST = Number(
+      (0.18 * this.newOrder.pricing.orderTotal).toFixed(2)
+    );
+    this.newOrder.pricing.grandTotal = Number(
+      (
+        this.newOrder.pricing.orderTotal +
+        0.18 * this.newOrder.pricing.orderTotal +
+        0.1 * this.newOrder.pricing.orderTotal -
+        discount
+      ).toFixed(2)
+    );
   }
 
   clearCart() {
@@ -223,48 +252,51 @@ export class CheckoutAreaComponent implements OnInit, OnDestroy {
         this.newOrder.orderId = res.data.orderId;
         this.clearCart();
         this.handlePayment();
-
       },
       error: (er) => {
         console.error(er);
-      }
+      },
     });
 
     this.subscriptions.push(sub);
   }
 
   handlePayment() {
-    
     let totAmount = this.newOrder.pricing.grandTotal;
     var options = {
-      key: "rzp_test_7o9eJC3c7HeJpn", // Enter the Key ID generated from the Dashboard
-      amount: totAmount*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-      currency: "INR",
-      name: "Vatana Corp", //your business name
-      description: "Test Transaction",
-      image: "/assets/img/favicon.png",
+      key: 'rzp_test_7o9eJC3c7HeJpn', // Enter the Key ID generated from the Dashboard
+      amount: totAmount * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      currency: 'INR',
+      name: 'Vatana Corp', //your business name
+      description: 'Test Transaction',
+      image: '/assets/img/favicon.png',
       order_id: this.newOrder.orderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
       handler: (response: any, error: any) => {
-        let redirectUrl = '/'
-        if(!response.razorpay_payment_id || response.razorpay_payment_id < 1){
+        let redirectUrl = '/';
+        if (!response.razorpay_payment_id || response.razorpay_payment_id < 1) {
           redirectUrl += 'order/failed';
-        } else {  
+        } else {
           redirectUrl += 'order/success';
         }
-        this.router.navigate([redirectUrl], {queryParams: {id: this.newOrder.orderId}});
+        this.router.navigate([redirectUrl], {
+          queryParams: { id: this.newOrder.orderId },
+        });
       },
       prefill: {
         //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        name: this.newOrder.billingDetails.firstName+" "+this.newOrder.billingDetails.lastName, //your customer's name
+        name:
+          this.newOrder.billingDetails.firstName +
+          ' ' +
+          this.newOrder.billingDetails.lastName, //your customer's name
         email: this.newOrder.billingDetails.emailAddress,
         contact: this.newOrder.billingDetails.phoneNo, //Provide the customer's phone number for better conversion rates
       },
       notes: {
-        address: "Vatana Corporate Office",
+        address: 'Vatana Corporate Office',
       },
       theme: {
-        color: "#80B500",
-      }
+        color: '#80B500',
+      },
     };
 
     // var rzp1 = new Razorpay(options);

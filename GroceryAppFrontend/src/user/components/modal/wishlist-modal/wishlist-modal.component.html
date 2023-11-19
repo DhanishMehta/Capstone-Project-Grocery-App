@@ -16,11 +16,11 @@
                                     <img *ngIf="product.images?.length! > 0" [src]="product.images![0].m" alt="#">
                                 </div>
                                 <div class="modal-product-info">
-                                    <h5><a [routerLink]='product.absolute_url'>{{product.desc}}</a></h5>
+                                    <h5><a data-bs-dismiss="modal" [routerLink]='product.absolute_url'>{{product.desc}}</a></h5>
                                     <p class="added-cart"><i class="fa fa-check-circle"></i> Successfully added to your
                                         Wishlist</p>
                                     <div class="btn-wrapper">
-                                        <a routerLink="/wishlist" class="theme-btn-1 btn btn-effect-1">View Wishlist</a>
+                                        <a data-bs-dismiss="modal" routerLink="/wishlist" class="theme-btn-1 btn btn-effect-1">View Wishlist</a>
                                     </div>
                                 </div>
                                 <!-- additional-info -->

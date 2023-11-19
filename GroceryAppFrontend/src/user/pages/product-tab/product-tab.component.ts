@@ -19,7 +19,7 @@ export class ProductTabComponent implements OnInit, OnDestroy, AfterViewInit {
   categoryList: CategoryOfTree[] = [];
 
   selectedCategory = 0;
-  selectedProduct!: Product;
+  selectedProduct: Product;
   selectedCategoryName = '';
 
   searchForm: FormGroup;
@@ -101,7 +101,12 @@ export class ProductTabComponent implements OnInit, OnDestroy, AfterViewInit {
       )
       .subscribe({
         next: (res) => {
+          // populating product list
           this.productsList = res.data.content;
+
+          // setting the initial value of selectedProduct for Modal.
+          this.selectedProduct = this.productsList[0];
+
           this.isLoading = false;
         },
       });

@@ -26,7 +26,11 @@
         </div>
     </div>
     <div class="card-body">
-        <h2 class="product-title text-nowrap text-truncate mw-100"><a [routerLink]="product.absolute_url" class="">{{product.desc}}</a></h2>
+        <div class="product-ratting">
+            <app-review-display [rating]="product.rating_info.avg_rating"></app-review-display>
+        </div>
+        <h2 class="product-title text-nowrap text-truncate mw-100"><a [routerLink]="product.absolute_url"
+                class="">{{product.desc}}</a></h2>
         <div class="product-price">
             <span>₹{{product.pricing.discount.subscription_price}}</span>
             <del>₹{{product.pricing.discount.mrp}}</del>

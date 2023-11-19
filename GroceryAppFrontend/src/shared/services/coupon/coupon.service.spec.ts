@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WindowRefService } from './window-ref.service';
+import { CouponService } from './coupon.service';
 
-describe('WindowRefService', () => {
-  let service: WindowRefService;
+describe('CouponService', () => {
+  let service: CouponService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(WindowRefService);
+    service = TestBed.inject(CouponService);
   });
 
   it('should be created', () => {

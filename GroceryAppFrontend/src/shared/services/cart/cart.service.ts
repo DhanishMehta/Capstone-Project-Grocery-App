@@ -25,7 +25,9 @@ export class CartService implements OnInit, OnDestroy {
     private authService: AuthService,
     private userService: UserService
   ) {
-    this.getCart();
+    if (this.authService.isLoggedIn()) {
+      this.getCart();
+    }
   }
 
   ngOnInit(): void {}
@@ -90,7 +92,6 @@ export class CartService implements OnInit, OnDestroy {
   }
 
   deleteFromCart(productId: string) {
-
     const userId = this.getUserId();
     const token = this.authService.getToken();
     const sub = this.http

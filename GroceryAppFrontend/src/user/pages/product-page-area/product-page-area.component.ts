@@ -23,6 +23,8 @@ export class ProductPageAreaComponent implements OnInit, OnDestroy {
   relatedProducts: Product[] = [];
   reviewsList: Review[] = [];
 
+  averageRating= '0';
+
   newRating = 0;
 
   reviewForm: FormGroup;
@@ -106,6 +108,7 @@ export class ProductPageAreaComponent implements OnInit, OnDestroy {
     const sub = this.reviewService.getReviewByProductId(this.product.id).subscribe({
       next: (res) => {
         this.reviewsList = res.data;
+        this.getAverageRating();
       }, error: (er) => {
         console.error(er);
       }
@@ -153,6 +156,6 @@ export class ProductPageAreaComponent implements OnInit, OnDestroy {
     this.reviewsList.forEach(review => {
       sum += review.reviewRating;
     })
-    return (sum / this.reviewsList.length).toFixed(2);
+    this.averageRating = (sum / this.reviewsList.length).toFixed(2);
   }
 }

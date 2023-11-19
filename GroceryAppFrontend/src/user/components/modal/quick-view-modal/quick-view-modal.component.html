@@ -21,15 +21,10 @@
                             <div class="col-lg-6 col-12">
                                 <div class="modal-product-info">
                                     <div class="product-ratting">
-                                        <ul>
-                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                            <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
-                                            <li><a href="#"><i class="far fa-star"></i></a></li>
-                                            <li class="review-total"> <a href="#"> (
-                                                    {{product.rating_info.review_count}} Reviews )</a></li>
-                                        </ul>
+                                        <app-review-display
+                                            [rating]="product.rating_info.avg_rating"></app-review-display>
+                                        <li class="review-total"> <a href="#"> (
+                                                {{product.rating_info.review_count}} Reviews )</a></li>
                                     </div>
                                     <h3>{{product.desc}}</h3>
                                     <div class="product-price">
@@ -41,9 +36,9 @@
                                             <li>
                                                 <strong>Categories:</strong>
                                                 <span>
-                                                    <a >{{product.category.tlc_name}}</a>
-                                                    <a >{{product.category.mlc_name}}</a>
-                                                    <a >{{product.category.llc_name}}</a>
+                                                    <a>{{product.category.tlc_name}}</a>
+                                                    <a>{{product.category.mlc_name}}</a>
+                                                    <a>{{product.category.llc_name}}</a>
                                                 </span>
                                             </li>
                                         </ul>
@@ -51,8 +46,10 @@
                                     <div class="ltn__product-details-menu-2">
                                         <ul>
                                             <li>
-                                                <a (click)="addToCart()" class="theme-btn-1 btn btn-effect-1" title="Add to Cart"
-                                                    data-bs-toggle="modal" data-bs-target="#add_to_cart_modal">
+                                                <a (click)="addToCart()" class="theme-btn-1 btn btn-effect-1"
+                                                    data-bs-dismiss="modal"
+                                                    title="Add to Cart" data-bs-toggle="modal"
+                                                    data-bs-target="#add_to_cart_modal">
                                                     <i class="fas fa-shopping-cart"></i>
                                                     <span>ADD TO CART</span>
                                                 </a>
@@ -62,7 +59,8 @@
                                     <div class="ltn__product-details-menu-3">
                                         <ul>
                                             <li>
-                                                <a (click)="addToWishlist()" href="#" class="" title="Wishlist" data-bs-toggle="modal"
+                                                <a (click)="addToWishlist()" href="#" class="" title="Wishlist"
+                                                    data-bs-dismiss="modal" data-bs-toggle="modal" 
                                                     data-bs-target="#liton_wishlist_modal">
                                                     <i class="far fa-heart"></i>
                                                     <span>Add to Wishlist</span>

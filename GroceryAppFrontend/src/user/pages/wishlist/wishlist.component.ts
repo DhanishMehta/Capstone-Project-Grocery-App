@@ -38,13 +38,14 @@ export class WishlistAreaComponent implements OnInit, OnDestroy {
 
   getWishlist() {
     if (this.authService.isLoggedIn()) {
+      this.isLoading = true;
       const sub = this.wishlistService.wishlist$.subscribe({
         next: (data) => {
           this.wishlist = data;
           this.displayCart = true;
           setTimeout(() => {
             this.isLoading = false;
-          }, 1500)
+          }, 1000);
         },
         error: (er) => {
           console.error(er);
@@ -58,9 +59,11 @@ export class WishlistAreaComponent implements OnInit, OnDestroy {
   addToCart(productId: string){
     this.wishlistService.deleteFromWishlist(productId);
     this.cartService.addToCart(productId);
+    this.getWishlist();
   }
-
+  
   removeFromWishList(productId: string){
     this.wishlistService.deleteFromWishlist(productId);
+    this.getWishlist();
   }
 }
